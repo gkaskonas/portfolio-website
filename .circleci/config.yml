@@ -21,12 +21,19 @@ jobs:
           command: |
             gatsby build
       - run:
-          name: Install AWS CLI
+          name: Install AWS CLI and JQ
           command: |
             apt-get update
-            apt-get install -y awscli
+            apt-get install -y awscli jq
       - run:
           name: Assume Role
           command: |
             chmod +x scripts/aws-cli-assumerole.sh
             source scripts/aws-cli-assumerole.sh
+      - run:
+          name: Deploy the bucket
+          command: |
+            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameters-override file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITIES_IAM
+      - run:
+          name: Deploy the website
+          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}      
