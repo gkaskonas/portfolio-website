@@ -23,7 +23,7 @@ jobs:
           command: |
             gatsby build
       - run:
-          name: Install AWS CLI and JQ
+          name: Install jq
           command: |
             apt-get update
             apt-get install -y jq
@@ -49,11 +49,11 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Delete the infra
           command: |
-            aws cloudformation delete-stack --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
+            aws cloudformation delete-stack --region eu-west-1 --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
   deploy-test:
     working_directory: ~/portfolio-website
     docker:
@@ -76,7 +76,7 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
           command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
@@ -102,7 +102,7 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
           command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
