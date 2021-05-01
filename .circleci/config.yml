@@ -31,6 +31,7 @@ jobs:
     executor: aws-cli/default
     working_directory: ~/portfolio-website
     steps:
+      - checkout
       - run:
           name: Assume Role
           command: |

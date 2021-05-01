@@ -3,6 +3,10 @@ AWSTemplateFormatVersion: 2010-09-09
 Parameters:
   EnvironmentName:
     Type: String
+  OriginAccessId:
+    Type: String
+  CanonicalUser:
+    Type: String
 Resources:
   WebsiteBucket:
     Type: "AWS::S3::Bucket"
@@ -33,6 +37,12 @@ Resources:
             Condition:
               Bool:
                 aws:SecureTransport: false
+          - Effect: Allow
+            Action: 
+              - s3:GetObject
+            Resource: !Sub arn:aws:s3:::${WebsiteBucket}/*
+            Principal:
+              CanonicalUser: !Ref CanonicalUser
 
   websiteCloudfrontdistribution:
     Type: AWS::CloudFront::Distribution
@@ -42,7 +52,7 @@ Resources:
         - DomainName: !GetAtt WebsiteBucket.DomainName
           Id: s3ProductionBucket
           S3OriginConfig:
-            OriginAccessIdentity: origin-access-identity/cloudfront/E3MPZH9RAHAGMC
+            OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${OriginAccessId}
         Enabled: true
         Comment: TestDistribution
         DefaultRootObject: index.html
