@@ -32,6 +32,8 @@ jobs:
     working_directory: ~/portfolio-website
     steps:
       - checkout
+      - aws-cli/setup:
+          profile-name: default
       - run:
           name: Assume Role
           command: |
