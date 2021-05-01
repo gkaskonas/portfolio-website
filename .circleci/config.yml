@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  aws-cli: circleci/aws-cli@2.0.0
 jobs:
   build:
     docker:
@@ -24,7 +26,11 @@ jobs:
           name: Install AWS CLI and JQ
           command: |
             apt-get update
-            apt-get install -y awscli jq
+            apt-get install -y jq
+  deploy:
+    executor: aws-cli/default
+    working_directory: ~/portfolio-website
+    steps:
       - run:
           name: Assume Role
           command: |
@@ -33,7 +39,7 @@ jobs:
       - run:
           name: Deploy the bucket
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameters-override file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITIES_IAM
+            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameter-overrides file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}      
+          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}
