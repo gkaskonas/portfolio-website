@@ -28,7 +28,7 @@ jobs:
           name: Generate static website
           command: |
             gatsby build
-  deploy-dev:
+  test-infra:
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
@@ -60,83 +60,60 @@ jobs:
           name: Delete the infra
           command: |
             aws cloudformation delete-stack --region eu-west-1 --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
-  deploy-test:
+  deploy: &deploy
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
+    steps:
+      - checkout
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Install jq
+          command: |
+            apt-get update
+            apt-get install -y jq
+      - run:
+          name: Assume Role
+          command: |
+            chmod +x scripts/aws-cli-assumerole.sh
+            source scripts/aws-cli-assumerole.sh
+      - run:
+          name: Deploy the infra
+          command: |
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+      - run:
+          name: Deploy the website
+          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
+
+  deploy-test:
+    <<: *deploy
     environment:
       ENVIRONMENT: test
-    steps:
-      - checkout
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Install jq
-          command: |
-            apt-get update
-            apt-get install -y jq
-      - run:
-          name: Assume Role
-          command: |
-            chmod +x scripts/aws-cli-assumerole.sh
-            source scripts/aws-cli-assumerole.sh
-      - run:
-          name: Deploy the infra
-          command: |
-            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
-      - run:
-          name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
+
   deploy-prod:
-    working_directory: ~/portfolio-website
-    docker:
-      - image: node:12.13.0
+    <<: *deploy
     environment:
       ENVIRONMENT: prod
-    steps:
-      - checkout
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: Install jq
-          command: |
-            apt-get update
-            apt-get install -y jq
-      - run:
-          name: Assume Role
-          command: |
-            chmod +x scripts/aws-cli-assumerole.sh
-            source scripts/aws-cli-assumerole.sh
-      - run:
-          name: Deploy the infra
-          command: |
-            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
-      - run:
-          name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
 workflows:
   version: 2.1
   website:
     jobs:
       - build
-      - deploy-dev:
+      - test-infra:
           requires:
             - build
       - deploy-test:
           requires:
             - build
-            - deploy-dev
+            - test-infra
           filters:
             branches:
-              only: master
+              only: main
       - approve-prod:
           type: approval
           requires:
@@ -144,7 +121,7 @@ workflows:
             - deploy-test
           filters:
             branches:
-              only: master
+              only: main
       - deploy-prod:
           requires:
             - build
@@ -152,4 +129,4 @@ workflows:
             - approve-prod
           filters:
             branches:
-              only: master
+              only: main
