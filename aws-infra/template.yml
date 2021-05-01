@@ -15,8 +15,8 @@ Conditions:
 Resources:
   WebsiteBucket:
     Type: "AWS::S3::Bucket"
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
       BucketName: !Sub pk-portfolio-website-${EnvironmentName}
       VersioningConfiguration:
