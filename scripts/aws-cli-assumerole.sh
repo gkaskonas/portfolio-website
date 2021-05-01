@@ -7,6 +7,7 @@ then
                     --role-arn "arn:aws:iam::119184259962:role/PipelineRole" \
                     --role-session-name "circleci-prod")
 elif [ $ENVIRONMENT == "test" ]
+then
  temp_role=$(aws sts assume-role \
                     --role-arn "arn:aws:iam::380477309410:role/PipelineRole" \
                     --role-session-name "circleci-test")
