@@ -32,6 +32,8 @@ jobs:
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
+    environment:
+      ENVIRONMENT: dev
     steps:
       - checkout
       - run:
@@ -90,9 +92,13 @@ jobs:
 
   deploy-test:
     <<: *deploy
+    environment:
+      ENVIRONMENT: test
 
   deploy-prod:
     <<: *deploy
+    environment:
+      ENVIRONMENT: prod
 workflows:
   version: 2.1
   website:
@@ -101,17 +107,13 @@ workflows:
       - test-infra:
           requires:
             - build
-          environment:
-            ENVIRONMENT: dev
       - deploy-test:
           requires:
             - build
-            - deploy-dev
+            - test-infra
           filters:
             branches:
-              only: master
-          environment:
-            ENVIRONMENT: test
+              only: main
       - approve-prod:
           type: approval
           requires:
@@ -119,7 +121,7 @@ workflows:
             - deploy-test
           filters:
             branches:
-              only: master
+              only: main
       - deploy-prod:
           requires:
             - build
@@ -127,6 +129,4 @@ workflows:
             - approve-prod
           filters:
             branches:
-              only: master
-          environment:
-            ENVIRONMENT: prod
+              only: main
