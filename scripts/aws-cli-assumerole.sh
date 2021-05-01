@@ -1,7 +1,7 @@
 unset  AWS_SESSION_TOKEN
 
 
-if [ $CIRCLE_BRANCH == "main" ]
+if [ $ENVIRONMENT == "main" ]
 then
  temp_role=$(aws sts assume-role \
                     --role-arn "arn:aws:iam::119184259962:role/PipelineRole" \

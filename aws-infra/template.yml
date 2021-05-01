@@ -7,6 +7,11 @@ Parameters:
     Type: String
   CanonicalUser:
     Type: String
+Conditions:
+  DeployCloudFront: !Not
+    - !Equals 
+      - !Ref EnvironmentName
+      - dev
 Resources:
   WebsiteBucket:
     Type: "AWS::S3::Bucket"
@@ -46,6 +51,7 @@ Resources:
 
   websiteCloudfrontdistribution:
     Type: AWS::CloudFront::Distribution
+    Condition: DeployCloudFront
     Properties:
       DistributionConfig:
         Origins:
