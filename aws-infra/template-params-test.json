@@ -1,0 +1,14 @@
+[
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "test"
+  },
+  {
+    "ParameterKey": "OriginAccessId",
+    "ParameterValue": "E30S0JWFIIN5KC"
+  },
+  {
+    "ParameterKey": "CanonicalUser",
+    "ParameterValue": "31bb2afec2a76c02193df5025b8c3d92fe706b295da6e7b336eda0e357262ffd78a5de1a143cbd3d517e1853f7d1912a"
+  }
+]
