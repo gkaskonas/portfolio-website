@@ -95,7 +95,7 @@ jobs:
             aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
+          command: aws s3 sync public s3://pk-portfolio-website-${ENVIRONMENT}
 
   deploy-test:
     <<: *deploy

@@ -55,7 +55,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-        - DomainName: !GetAtt WebsiteBucket.DomainName
+        - DomainName: !GetAtt WebsiteBucket.RegionalDomainName
           Id: s3ProductionBucket
           S3OriginConfig:
             OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${OriginAccessId}
