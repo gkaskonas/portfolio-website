@@ -1,7 +1,7 @@
 [
   {
     "ParameterKey": "EnvironmentName",
-    "ParameterValue": "main"
+    "ParameterValue": "prod"
   },
   {
     "ParameterKey": "OriginAccessId",

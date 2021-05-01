@@ -1,6 +1,6 @@
 export const mainMenuItems = [
   {
-    path: "/",
+    path: "/about",
     text: "about",
   },
   {
