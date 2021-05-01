@@ -11,6 +11,12 @@ jobs:
       - run:
           name: Install Gatsby
           command: npm install -g gatsby
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json
+            - npm-deps-{{ checksum "package-lock.json" }}
+            # Fallback cache to be used
+            - npm-deps-
       - run:
           name: Install dependencies
           command: npm install
@@ -22,32 +28,128 @@ jobs:
           name: Generate static website
           command: |
             gatsby build
+  deploy-dev:
+    working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
+    environment:
+      ENVIRONMENT: dev
+    steps:
+      - checkout
       - run:
-          name: Install AWS CLI and JQ
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+      - run:
+          name: Install jq
           command: |
             apt-get update
             apt-get install -y jq
-  deploy:
-    executor: aws-cli/default
-    working_directory: ~/portfolio-website
-    steps:
       - run:
           name: Assume Role
           command: |
             chmod +x scripts/aws-cli-assumerole.sh
             source scripts/aws-cli-assumerole.sh
       - run:
-          name: Deploy the bucket
+          name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameter-overrides file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+      - run:
+          name: Delete the infra
+          command: |
+            aws cloudformation delete-stack --region eu-west-1 --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
+  deploy-test:
+    working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
+    environment:
+      ENVIRONMENT: test
+    steps:
+      - checkout
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Install jq
+          command: |
+            apt-get update
+            apt-get install -y jq
+      - run:
+          name: Assume Role
+          command: |
+            chmod +x scripts/aws-cli-assumerole.sh
+            source scripts/aws-cli-assumerole.sh
+      - run:
+          name: Deploy the infra
+          command: |
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}
+          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
+  deploy-prod:
+    working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
+    environment:
+      ENVIRONMENT: prod
+    steps:
+      - checkout
+      - run:
+          name: Install AWS CLI
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Install jq
+          command: |
+            apt-get update
+            apt-get install -y jq
+      - run:
+          name: Assume Role
+          command: |
+            chmod +x scripts/aws-cli-assumerole.sh
+            source scripts/aws-cli-assumerole.sh
+      - run:
+          name: Deploy the infra
+          command: |
+            aws cloudformation deploy --region eu-west-1 --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
+      - run:
+          name: Deploy the website
+          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
 workflows:
   version: 2.1
-  validate:
+  website:
     jobs:
       - build
-      - deploy:
+      - deploy-dev:
           requires:
             - build
+      - deploy-test:
+          requires:
+            - build
+            - deploy-dev
+          filters:
+            branches:
+              only: master
+      - approve-prod:
+          type: approval
+          requires:
+            - build
+            - deploy-test
+          filters:
+            branches:
+              only: master
+      - deploy-prod:
+          requires:
+            - build
+            - deploy-test
+            - approve-prod
+          filters:
+            branches:
+              only: master

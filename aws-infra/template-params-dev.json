@@ -2,5 +2,13 @@
   {
     "ParameterKey": "EnvironmentName",
     "ParameterValue": "dev"
+  },
+  {
+    "ParameterKey": "OriginAccessId",
+    "ParameterValue": "EVZX5L9UIDV1G"
+  },
+  {
+    "ParameterKey": "CanonicalUser",
+    "ParameterValue": "51e26ce9356e2423339523fe6dcf6ecef1638e7ff56c4ee5da219f4ac553b145c89e7864e52e5a5242c5725671ff1abc"
   }
 ]
