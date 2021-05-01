@@ -11,6 +11,12 @@ jobs:
       - run:
           name: Install Gatsby
           command: npm install -g gatsby
+      - restore_cache:
+          keys:
+            # Find a cache corresponding to this specific package-lock.json
+            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            # Fallback cache to be used
+            - v1-npm-deps-
       - run:
           name: Install dependencies
           command: npm install
