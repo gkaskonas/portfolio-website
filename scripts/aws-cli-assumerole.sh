@@ -1,11 +1,15 @@
 unset  AWS_SESSION_TOKEN
 
 
-if [ $ENVIRONMENT == "main" ]
+if [ $ENVIRONMENT == "prod" ]
 then
  temp_role=$(aws sts assume-role \
                     --role-arn "arn:aws:iam::119184259962:role/PipelineRole" \
                     --role-session-name "circleci-prod")
+elif [ $ENVIRONMENT == "test" ]
+ temp_role=$(aws sts assume-role \
+                    --role-arn "arn:aws:iam::380477309410:role/PipelineRole" \
+                    --role-session-name "circleci-test")
 else
  temp_role=$(aws sts assume-role \
                     --role-arn "arn:aws:iam::404319983256:role/PipelineRole" \

@@ -31,6 +31,8 @@ jobs:
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
+    environment:
+      ENVIRONMENT: dev
     steps:
       - checkout
       - run:
@@ -39,9 +41,6 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             ./aws/install
-      - run: 
-          name: "Set up environment var"
-          command: echo "export ENVIRONMENT=dev"
       - run:
           name: Assume Role
           command: |
@@ -59,6 +58,8 @@ jobs:
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
+    environment:
+      ENVIRONMENT: test
     steps:
       - checkout
       - run:
@@ -67,9 +68,6 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-      - run: 
-          name: "Set up environment var"
-          command: echo "export ENVIRONMENT=test"
       - run:
           name: Assume Role
           command: |
@@ -86,6 +84,8 @@ jobs:
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
+    environment:
+      ENVIRONMENT: prod
     steps:
       - checkout
       - run:
@@ -94,9 +94,6 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
-      - run: 
-          name: "Set up environment var"
-          command: echo "export ENVIRONMENT=prod"
       - run:
           name: Assume Role
           command: |
