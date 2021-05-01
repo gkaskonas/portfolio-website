@@ -14,9 +14,9 @@ jobs:
       - restore_cache:
           keys:
             # Find a cache corresponding to this specific package-lock.json
-            - v1-npm-deps-{{ checksum "package-lock.json" }}
+            - npm-deps-{{ checksum "package-lock.json" }}
             # Fallback cache to be used
-            - v1-npm-deps-
+            - npm-deps-
       - run:
           name: Install dependencies
           command: npm install
