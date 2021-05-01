@@ -28,6 +28,10 @@ jobs:
           name: Generate static website
           command: |
             gatsby build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   test-infra:
     working_directory: ~/portfolio-website
     docker:
@@ -60,10 +64,7 @@ jobs:
           name: Delete the infra
           command: |
             aws cloudformation delete-stack --region eu-west-1 --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .
+
   deploy: &deploy
     working_directory: ~/portfolio-website
     docker:
