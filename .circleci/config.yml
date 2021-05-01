@@ -4,9 +4,6 @@ jobs:
     docker:
       - image: node:10.13.0
     working_directory: ~/portfolio-website
-    aws_auth:
-          aws_access_key_id: $AWS_ACCESS_KEY_ID  # can specify string literal values
-          aws_secret_access_key: $AWS_SECRET_ACCESS_KEY  # or project UI envar referencesxx
     steps:
       - checkout
       - run:
