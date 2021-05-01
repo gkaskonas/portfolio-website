@@ -60,7 +60,7 @@ Resources:
           S3OriginConfig:
             OriginAccessIdentity: !Sub origin-access-identity/cloudfront/${OriginAccessId}
         Enabled: true
-        Comment: TestDistribution
+        Comment: PortfolioDistro
         DefaultRootObject: index.html
         CustomErrorResponses:
         - ErrorCode: 403

@@ -60,12 +60,18 @@ jobs:
           name: Delete the infra
           command: |
             aws cloudformation delete-stack --region eu-west-1 --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
   deploy: &deploy
     working_directory: ~/portfolio-website
     docker:
       - image: node:12.13.0
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Install AWS CLI
           command: |
