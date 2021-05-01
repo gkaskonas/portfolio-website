@@ -48,10 +48,11 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameter-overrides file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
-          name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}
+          name: Delete the infra
+          command: |
+            aws cloudformation delete-stack --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
   deploy-test:
     working_directory: ~/portfolio-website
     steps:
@@ -73,10 +74,10 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameter-overrides file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}
+          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
   deploy-prod:
     working_directory: ~/portfolio-website
     steps:
@@ -98,16 +99,16 @@ jobs:
       - run:
           name: Deploy the infra
           command: |
-            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${CIRCLE_BRANCH} --parameter-overrides file://aws-infra/template-params-${CIRCLE_BRANCH}.json --capabilities CAPABILITY_IAM
+            aws cloudformation deploy --template aws-infra/template.yml --stack-name cfPortfolioWebsite-${ENVIRONMENT} --parameter-overrides file://aws-infra/template-params-${ENVIRONMENT}.json --capabilities CAPABILITY_IAM
       - run:
           name: Deploy the website
-          command: aws s3 cp public/* s3://pk-portfolio-website-${CIRCLE_BRANCH}
+          command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
 workflows:
   version: 2.1
   website:
     jobs:
       - build
-      - deploy-dev
+      - deploy-dev:
           requires:
             - build
       - deploy-test:
