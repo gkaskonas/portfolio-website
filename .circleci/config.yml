@@ -29,6 +29,8 @@ jobs:
             apt-get install -y jq
   deploy-dev:
     working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
     steps:
       - checkout
       - run:
@@ -55,6 +57,8 @@ jobs:
             aws cloudformation delete-stack --stack-name cfPortfolioWebsite-${ENVIRONMENT} 
   deploy-test:
     working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
     steps:
       - checkout
       - run:
@@ -80,6 +84,8 @@ jobs:
           command: aws s3 cp public/* s3://pk-portfolio-website-${ENVIRONMENT}
   deploy-prod:
     working_directory: ~/portfolio-website
+    docker:
+      - image: node:12.13.0
     steps:
       - checkout
       - run:
@@ -115,7 +121,7 @@ workflows:
           requires:
             - build
             - deploy-dev
-        filters:
+          filters:
             branches:
               only: master
       - approve-prod:
@@ -123,7 +129,7 @@ workflows:
           requires:
             - build
             - deploy-test
-        filters:
+          filters:
             branches:
               only: master
       - deploy-prod:
@@ -131,6 +137,6 @@ workflows:
             - build
             - deploy-test
             - approve-prod
-        filters:
+          filters:
             branches:
               only: master
