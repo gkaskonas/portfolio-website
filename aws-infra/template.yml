@@ -78,8 +78,4 @@ Resources:
               Forward: none
           ViewerProtocolPolicy: redirect-to-https
         PriceClass: PriceClass_100
-        ViewerCertificate:
-          AcmCertificateArn: arn:aws:acm:us-east-1:123456789012:certificate/364912a52-3115-4df9-a067-7290c0a2657s
-          MinimumProtocolVersion: TLSv1.1_2016
-          SslSupportMethod: sni-only
 
